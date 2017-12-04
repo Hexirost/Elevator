@@ -6,8 +6,8 @@ from Elevator	import Elevator
 from Building	import Building
 
 RANDOM_SEED		 = 42
-NUM_OF_ELEVATORS = 2
-NUM_OF_RIDERS	 = 2
+NUM_OF_ELEVATORS = 5
+NUM_OF_RIDERS	 = 5
 
 env = simpy.Environment()
 

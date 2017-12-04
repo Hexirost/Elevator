@@ -40,7 +40,7 @@ class Elevator():
 		try:
 			self.stops.remove(stop)
 		except:
-			pass
+			"Failed to remove stop"
 
 	def add_rider(self,rider):
 		self.riders.append(rider)
