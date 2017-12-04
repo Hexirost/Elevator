@@ -2,31 +2,55 @@ import simpy
 import panda3d
 from Elevator import Elevator
 from Rider import Rider
-import random
 
-RANDOM_SEED		 = 42
-NUM_OF_ELEVATORS = 2
-NUM_OF_RIDERS	 = 5
+class Building():
+	def __init__(self, elevators, riders, env):
+		self.elevators 	= elevators
+		self.riders 	= riders
+		self.env		= env
 
-Building = []
-Riders = []
+	def run(self):
+		while True:
+			for ele in self.elevators:
+				for rider in self.riders:
+					if rider.chosen_elevator == ele and ele.curr_floor == rider.curr_floor and rider.request_elevator:
+						rider.request_elevator = False
+						ele.add_rider(rider)
+						ele.remove_stop(rider.curr_floor)
+						ele.add_stop(rider.desired_floor)
+						# Rider enters the elevator/elevator removes the current stop and adds rider desired stop
+				print ele.name, "at", ele.curr_floor, "with stops", ele.stops, "and has riders",
+				for rider in ele.riders:
+					print rider.name,
+				print ""
+			for rider in self.riders:
+				if not rider.request_elevator and not rider.chosen_elevator:
+					#print "At", self.env.now, "Rider", rider.name, "is requesting the elevator "
+					rider.request_elevator = True
+					best = self.elevators[0]
+					# TODO: READ AND IMPORVE
+					# for elevator in elevators:
+					# 	if calculate(elevator) > calculate(best):
+					# 		best = elevator
+					#print "Rider", rider.name, "is going in elevator", best.name
+					best.add_stop(rider.curr_floor)
+					rider.chosen_elevator = best
+				elif rider.chosen_elevator and rider.curr_floor == rider.desired_floor:
+					try:
+						rider.chosen_elevator.riders.remove(rider)
+					except:
+						print "failed removing rider"
+					try:
+						rider.chosen_elevator.stops.remove(rider.curr_floor)
+					except:
+						print "failed removing stop"	
+					rider.chosen_elevator = None
 
-env = simpy.Environment()
-
-for ele in range(NUM_OF_ELEVATORS):
-	new_ele = Elevator("Elevator "+str(ele))
-	Building.append(new_ele)
-
-for rid in range(NUM_OF_RIDERS):
-	rider = Rider(chr(65+rid), env)
-	Riders.append(rider)
-	random.choice(Building).addRider(rider)		# TODO: REMOVE
-
-# for Ele in Building:
-# 	print Ele.name
-# 	for rid in Ele.getRiders():
-# 		print rid.post()
-
-for rider in Riders:
-	env.process(rider.run())
-env.run(until= 5)
+				print rider.name, "at", rider.curr_floor, rider.request_elevator, "wants to go to", rider.desired_floor, "with elevator", rider.chosen_elevator
+				print ""
+					# elevator is choosen and picks up the next rider
+			yield self.env.timeout(1)
+		# for Ele in Building:
+		# 	print Ele.name
+		# 	for rid in Ele.getRiders():
+		# 		print rid.post()
