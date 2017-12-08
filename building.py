@@ -1,17 +1,34 @@
 import simpy
-import panda3d
 from Elevator import Elevator
 from Rider import Rider
 import sys
-
+import pygame
+import time
+import random
+import pygame
 class Building():
-	def __init__(self, elevators, riders, env):
+	def __init__(self, elevators, riders, env, screen, display, image, event):
 		self.elevators 	= elevators
 		self.riders 	= riders
 		self.env		= env
+		self.screen		= screen
+		self.display	= display
+		self.image		= image
+		self.event		= event
+		for ele in elevators:
+			elevator = image.load("elevator.bmp")
+			elerect = elevator.get_rect()
+			elerect.y = 500
+			elerect.x = 100 * elevators.index(ele)
+			ele.set_rect(elerect)
+			ele.set_img(elevator)
 
 	def run(self):
 		while True:
+			for event in self.event.get():
+				if event.type == pygame.QUIT: sys.exit()
+			black = 0, 0, 0
+			self.screen.fill(black)
 			for ele in self.elevators:
 				for rider in self.riders:
 					if rider.chosen_elevator == ele and ele.curr_floor == rider.curr_floor and rider.request_elevator:
@@ -19,7 +36,20 @@ class Building():
 						ele.add_rider(rider)
 						ele.remove_stop(rider.curr_floor)
 						ele.add_stop(rider.desired_floor)
-						# Rider enters the elevator/elevator removes the current stop and adds rider desired stop
+
+				if ele.still:
+					ele.rect = ele.rect.move([0,0])
+					print "STILL"+str(ele.curr_floor)+" pos:"+str((ele.rect.bottom-592)/5)
+				elif ele.going_up:
+					ele.rect = ele.rect.move([ele.speed[0],ele.speed[1]*-1])
+					print "UP"+str(ele.curr_floor)+" pos:"+str((ele.rect.bottom-592)/5)
+				elif not ele.going_up:
+					ele.rect = ele.rect.move([ele.speed[0],ele.speed[1]])
+					print "DOWN"+str(ele.curr_floor)+" pos:"+str((ele.rect.bottom-592)/5)
+				if ele.rect.bottom > 600:
+					print ("ERROR below"+str(ele.curr_floor)) * 10
+
+				self.screen.blit(ele.img, ele.rect)
 				print ele.name, "at", ele.curr_floor, "with stops", ele.stops, "and has riders",
 				for rider in ele.riders:
 					print rider.name,
@@ -38,6 +68,8 @@ class Building():
 						if ((elevator.going_up and elevator.curr_floor <= rider.curr_floor and elevator.curr_floor < rider.desired_floor) or
 						(not elevator.going_up and elevator.curr_floor >= rider.curr_floor and elevator.curr_floor > rider.desired_floor)):
 							ele_score+=20
+						if len(elevator.stops):
+							ele_score-=(len(elevator.riders)*4)
 							# print "Correct direction adding 20"
 						ele_score-=len(elevator.riders)*3
 						# print elevator.name, "has ele_score of", ele_score
@@ -63,6 +95,8 @@ class Building():
 
 				print rider.name, "at", rider.curr_floor, rider.request_elevator, "wants to go to", rider.desired_floor, "with elevator", rider.chosen_elevator
 					# elevator is choosen and picks up the next rider
+			
+			self.display.flip()
 			yield self.env.timeout(1)
 		# for Ele in Building:
 		# 	print Ele.name
