@@ -11,7 +11,7 @@ class Elevator():
 		self.going_up	= True
 		self.still 		= True
 		self.env		= env
-		self.speed		= [0, 50]
+		self.speed		= [0, 75]
 		self.rect		= None
 		self.img		= None
 
@@ -31,21 +31,23 @@ class Elevator():
 		while True:
 			self.still = True
 			if self.stops:
-				if self.stops[0] and self.stops[0] > self.curr_floor:
+				curr_dest=None
+				if self.going_up:
+					curr_dest = max(self.stops)
+				else:
+					curr_dest = min(self.stops)
+
+				if curr_dest > self.curr_floor:
 					self.curr_floor+= 1
 					self.still		= False
 					self.going_up	= True
-					print "going up",self.name,self.curr_floor
-				elif self.stops[0] and self.stops[0] < self.curr_floor:
+				elif curr_dest < self.curr_floor:
 					self.curr_floor-= 1
 					self.still		= False
 					self.going_up	= False
-					print "going down",self.name,self.curr_floor
-				else:
-					print "still",self.name,self.curr_floor
+
 				for rider in self.riders:
 					rider.curr_floor=self.curr_floor
-					print "moving riders"
 				yield self.env.timeout(1)
 			else:
 				yield self.env.timeout(1)
@@ -54,10 +56,7 @@ class Elevator():
 		self.stops.append(stop)
 
 	def remove_stop(self, stop):
-		try:
-			self.stops.remove(stop)
-		except:
-			"Failed to remove stop"
+		self.stops.remove(stop)
 
 	def add_rider(self,rider):
 		self.riders.append(rider)

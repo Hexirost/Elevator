@@ -8,12 +8,17 @@ class Rider():
 		self.chosen_elevator	= None
 		self.env				= env
 		self.curr_floor 		= 0
-		self.desired_floor		= random.randint(1,10)
+		self.desired_floor		= random.randint(1,7)
 		self.request_elevator	= False
 		self.waiting 			= True
+		self.rect				= None
+		self.img				= None
 
-	def post(self):
-		return ("Hello my name is " + str(self.name))
+	def set_rect(self,rect):
+		self.rect = rect
+
+	def set_img(self,img):
+		self.img = img
 
 	def run(self):
 		while True:
@@ -28,6 +33,5 @@ class Rider():
 					yield self.env.timeout(self.wait)
 					self.desired_floor = random.randint(1,10)
 			else:
-				print "Rider waiting for elevator to come" 
 				yield self.env.timeout(1)
 				self.waiting = False

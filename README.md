@@ -1,3 +1,3 @@
 # Elevator
 
-Elevator simulation using SimPy and Panda3d
+Elevator simulation using SimPy and PyGame

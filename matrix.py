@@ -7,8 +7,8 @@ from Elevator	import Elevator
 from Building	import Building
 
 RANDOM_SEED		 = 42
-NUM_OF_ELEVATORS = 5
-NUM_OF_RIDERS	 = 5
+NUM_OF_ELEVATORS = 10
+NUM_OF_RIDERS	 = 50
 
 env = simpy.RealtimeEnvironment(initial_time=0, factor=0.05, strict=False)
 
@@ -18,8 +18,7 @@ random.seed(RANDOM_SEED)
 
 pygame.init()
 
-size = width, height = 500, 600
-black = 0, 0, 0
+size = width, height = 1000, 800
 
 screen	= pygame.display.set_mode(size)
 display = pygame.display
@@ -43,4 +42,4 @@ for elevator in elevators:
 	env.process(elevator.run())
 env.process(matrix.run())
 
-env.run(until= 1000)
+env.run(until= 10000)
